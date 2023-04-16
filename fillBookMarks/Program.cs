@@ -5,6 +5,8 @@ using System.Threading;
 using Microsoft.Office.Interop.Word;
 using System.Windows.Forms;
 using System.IO;
+using System.Reflection;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace fillBookMarks
 {
@@ -23,8 +25,9 @@ namespace fillBookMarks
         static void Main(string[] args)
         {
             result = 0;
-            string ficheroLog = fillBookMarks.Properties.Settings.Default.PATH_LOG;
-            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.CreateSpecificCulture("en-US");
+
+            //El log se guarda en la misma ruta donde se encuentre el exe
+            string ficheroLog = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
             Console.WriteLine("Ejecutando programa...");
 
@@ -32,16 +35,15 @@ namespace fillBookMarks
             {
                 Console.WriteLine("Obteniendo argumentos...");
 
-
-                args = new string[4];
-                //Plantilla
-                args.SetValue("C:\\vs_projects\\fillBookMarks\\docx\\Template.docx",0);
-                //Bookmarks
-                args.SetValue("NOMBRE|DINERO|CONSECUENCIA", 1);
-                //Valores
-                args.SetValue("Markel|536,75|llamaremos a nuestros abogados", 2);
-                //Resultado
-                args.SetValue("C:\\vs_projects\\fillBookMarks\\docx\\Resultado.docx", 3);
+                //args = new string[4];
+                ////Plantilla
+                //args.SetValue("C:\\vs_projects\\fillBookMarks\\docx\\Template.docx",0);
+                ////Bookmarks
+                //args.SetValue("NOMBRE|DINERO|CONSECUENCIA", 1);
+                ////Valores
+                //args.SetValue("Alfredo|536,75|llamaremos a nuestros abogados", 2);
+                ////Resultado
+                //args.SetValue("C:\\vs_projects\\fillBookMarks\\docx\\Resultado.docx", 3);
 
 
                 if (args.Length == 0)
@@ -52,11 +54,11 @@ namespace fillBookMarks
                 {
                     if (args.Length > 4)
                     {
-                        throw new ArgumentException("Menos de 4 argumentos");
+                        throw new ArgumentException("Menos de 4 argumentos: " + args.Length + "argumentos encontrados");
                     }
                     else
                     {
-                        throw new ArgumentException("Más de 4 argumentos");
+                        throw new ArgumentException("Más de 4 argumentos: " + args.Length + "argumentos encontrados");
                     }
                 }
                 else
@@ -64,7 +66,7 @@ namespace fillBookMarks
                     Console.WriteLine("Validando argumentos...");
                     if (args[0] == null || args[0].ToString().CompareTo(string.Empty) == 0)
                     {
-                        throw new ArgumentException("Falta el primero argumento, la ruta de la plantilla Word");
+                        throw new ArgumentException("Falta el primer argumento: Ruta de la plantilla Word");
                     }
                     else
                     {
@@ -73,7 +75,7 @@ namespace fillBookMarks
 
                     if (args[1] == null || args[1].ToString().CompareTo(string.Empty) == 0)
                     {
-                        throw new ArgumentException("Falta el segundo argumento: Nombre de los Bookmarks separados por ; o por |");
+                        throw new ArgumentException("Falta el segundo argumento: Nombre de los marcadores separados por ; o por |");
                     }
                     else
                     {
@@ -84,13 +86,13 @@ namespace fillBookMarks
                         }
                         if (marcadores.Length == 0)
                         {
-                            throw new ArgumentException("El delimitador de los Bookmarks debe ser ; o |");
+                            throw new ArgumentException("El delimitador de los marcadores debe ser ; o |");
                         }
                     }
 
                     if (args[2] == null || args[2].ToString().CompareTo(string.Empty) == 0)
                     {
-                        throw new ArgumentException("Falta el tercer argumento: Valor de los Bookmarks separados por ; o por |");
+                        throw new ArgumentException("Falta el tercer argumento: Valor de los marcadores separados por ; o por |");
                     }
                     else
                     {

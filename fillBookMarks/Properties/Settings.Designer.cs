@@ -22,17 +22,5 @@ namespace fillBookMarks.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\vs_projects\\fillBookMarks\\log.txt")]
-        public string PATH_LOG {
-            get {
-                return ((string)(this["PATH_LOG"]));
-            }
-            set {
-                this["PATH_LOG"] = value;
-            }
-        }
     }
 }
