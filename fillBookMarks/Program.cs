@@ -10,15 +10,15 @@ namespace fillBookMarks
 {
     class Program
     {
-        static Microsoft.Office.Interop.Word.Application myWord;
-        static Microsoft.Office.Interop.Word.Document doc;
-        static string wordResultado;
+        static Microsoft.Office.Interop.Word.Application templateWord;
+        static Microsoft.Office.Interop.Word.Document documentoWord;
+        static string resultWord;
         static string pathWord;
-        static string[] bookmarks;
-        static string[] values;
-        static char delimiter1 = '|';
-        static char delimiter2 = ';';
-        static string rutadestino;
+        static string[] marcadores;
+        static string[] valores;
+        static char delimitador1 = '|';
+        static char delimitador2 = ';';
+        static string pathDestino;
         static int result;
         static void Main(string[] args)
         {
@@ -26,22 +26,22 @@ namespace fillBookMarks
             string ficheroLog = fillBookMarks.Properties.Settings.Default.PATH_LOG;
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.CreateSpecificCulture("en-US");
 
-            Console.WriteLine("Ejecutando...");
+            Console.WriteLine("Ejecutando programa...");
 
             try
             {
-                Console.WriteLine("1. Obteniendo argumentos...");
+                Console.WriteLine("Obteniendo argumentos...");
 
 
-                //args = new string[4];
-                ////Plantilla
-                //args.SetValue();
-                ////Bookmarks
-                //args.SetValue();
-                ////Valores
-                //args.SetValue();
-                ////Resultado
-                //args.SetValue();
+                args = new string[4];
+                //Plantilla
+                args.SetValue("C:\\vs_projects\\fillBookMarks\\docx\\Template.docx",0);
+                //Bookmarks
+                args.SetValue("NOMBRE|DINERO|CONSECUENCIA", 1);
+                //Valores
+                args.SetValue("Markel|536,75|llamaremos a nuestros abogados", 2);
+                //Resultado
+                args.SetValue("C:\\vs_projects\\fillBookMarks\\docx\\Resultado.docx", 3);
 
 
                 if (args.Length == 0)
@@ -61,7 +61,7 @@ namespace fillBookMarks
                 }
                 else
                 {
-                    Console.WriteLine("2. Validando argumentos...");
+                    Console.WriteLine("Validando argumentos...");
                     if (args[0] == null || args[0].ToString().CompareTo(string.Empty) == 0)
                     {
                         throw new ArgumentException("Falta el primero argumento, la ruta de la plantilla Word");
@@ -73,80 +73,86 @@ namespace fillBookMarks
 
                     if (args[1] == null || args[1].ToString().CompareTo(string.Empty) == 0)
                     {
-                        throw new ArgumentException("Falta el segundo argumento, el nombre de los Bookmarks separados por ; o por |");
+                        throw new ArgumentException("Falta el segundo argumento: Nombre de los Bookmarks separados por ; o por |");
                     }
                     else
                     {
-                        bookmarks = args[1].Split(delimiter1);
-                        if (bookmarks.Length < 2)
+                        marcadores = args[1].Split(delimitador1);
+                        if (marcadores.Length < 2)
                         {
-                            bookmarks = args[1].Split(delimiter2);
+                            marcadores = args[1].Split(delimitador2);
                         }
-                        if (bookmarks.Length == 0)
+                        if (marcadores.Length == 0)
                         {
-                            throw new ArgumentException("El nombre de los Bookmarks debe estar separado por ; o por |");
+                            throw new ArgumentException("El delimitador de los Bookmarks debe ser ; o |");
                         }
                     }
 
                     if (args[2] == null || args[2].ToString().CompareTo(string.Empty) == 0)
                     {
-                        throw new ArgumentException("Falta el tercer argumento, el valor de los Bookmarks separados por ; o por |");
+                        throw new ArgumentException("Falta el tercer argumento: Valor de los Bookmarks separados por ; o por |");
                     }
                     else
                     {
-                        values = args[2].Split(delimiter1);
-                        if (values.Length < 2)
+                        valores = args[2].Split(delimitador1);
+                        if (valores.Length < 2)
                         {
-                            values = args[2].Split(delimiter2);
+                            valores = args[2].Split(delimitador2);
                         }
-                        if (values.Length == 0)
+                        if (valores.Length == 0)
                         {
-                            throw new ArgumentException("El valor de los Bookmarks debe estar separado por ; o por |");
+                            throw new ArgumentException("El delimitador de los valores debe ser ; o |");
                         }
                     }
 
 
                     if (args[3] == null || args[3].ToString().CompareTo(string.Empty) == 0)
                     {
-                        throw new ArgumentException("Falta el cuarto argumento, la ruta del documento resultado");
+                        throw new ArgumentException("Falta el cuarto argumento: Ruta del documento resultado");
                     }
                     else
                     {
-                        wordResultado = args[3];
-                        rutadestino = System.IO.Path.GetDirectoryName(wordResultado);
+                        resultWord = args[3];
+                        pathDestino = System.IO.Path.GetDirectoryName(resultWord);
                     }
 
                     if (!System.IO.File.Exists(pathWord))
                     {
-                        throw new System.IO.FileNotFoundException("No existe la plantilla " + pathWord);
+                        throw new System.IO.FileNotFoundException("No existe la template " + pathWord);
                     }
 
-                    if (!System.IO.File.Exists(rutadestino))
+                    if (!System.IO.Directory.Exists(pathDestino))
                     {
-                        throw new System.IO.FileNotFoundException("No existe la ruta donde debería guardar el documento:  " + rutadestino);
+                        throw new System.IO.FileNotFoundException("No existe la ruta donde debería guardar el documento:  " + pathDestino);
                     }
 
-                    if (bookmarks.Length != values.Length)
+                    if (marcadores.Length != valores.Length)
                     {
-                        throw new ArgumentException("Nombres de marcadores <> valores de marcadores");
+                        if (marcadores.Length > valores.Length)
+                        {
+                            throw new ArgumentException("Hay más marcadores que valores: " + marcadores.Length + " marcadores y " + valores.Length + " valores");
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Hay menos marcadores que valores: " + marcadores.Length + " marcadores y " + valores.Length + " valores");
+                        }
                     }
 
-                    Console.WriteLine("3. Rellenando fichero Word...");
+                    Console.WriteLine("Rellenando fichero Word...");
 
-                    myWord = new Microsoft.Office.Interop.Word.Application();
-                    doc = myWord.Documents.Add(pathWord);
+                    templateWord = new Microsoft.Office.Interop.Word.Application();
+                    documentoWord = templateWord.Documents.Add(pathWord);
 
-                    for (int index = 0; index < bookmarks.Length; index++)
+                    for (int index = 0; index < marcadores.Length; index++)
                     {
-                        if (!buscarCambiarBookmarks(bookmarks[index], values[index]))
+                        if (!buscarCambiarBookmarks(marcadores[index], valores[index]))
                         {
                             continue;
                         }
                     }
 
-                    Console.WriteLine("4. Guardando fichero Word...");
-                    doc.SaveAs(wordResultado, 16);
-
+                    Console.WriteLine("Guardando fichero Word...");
+                    documentoWord.SaveAs(resultWord, 16);
 
                 }
             }
@@ -158,17 +164,17 @@ namespace fillBookMarks
             }
             finally
             {
-                if (doc != null)
+                if (documentoWord != null)
                 {
-                    ((_Document)doc).Close(WdSaveOptions.wdDoNotSaveChanges);
+                    ((_Document)documentoWord).Close(WdSaveOptions.wdDoNotSaveChanges);
                 }
 
-                if(myWord != null)
+                if(templateWord != null)
                 {
-                    ((_Application)myWord).Quit();
+                    ((_Application)templateWord).Quit();
                 }
 
-                Console.WriteLine("5. Fin del programa");
+                Console.WriteLine("Programa finalizado");
                 Environment.ExitCode = result;
 
             }
@@ -178,11 +184,11 @@ namespace fillBookMarks
 
         static Boolean buscarCambiarBookmarks(string nombreBookmark, string valor)
         {
-            for (int index = 1; index <= doc.Bookmarks.Count; index++)
+            for (int index = 1; index <= documentoWord.Bookmarks.Count; index++)
             {
-                if (doc.Bookmarks[index].Name == nombreBookmark)
+                if (documentoWord.Bookmarks[index].Name == nombreBookmark)
                 {
-                    doc.Bookmarks[1].Range.Text = valor;
+                    documentoWord.Bookmarks[index].Range.Text = valor;
                     return true;
                 }
             }
